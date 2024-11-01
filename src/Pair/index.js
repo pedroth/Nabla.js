@@ -31,4 +31,8 @@ export class Pair {
     isEmpty() {
         return !this.x && !this.y;
     }
+
+    static of(x, y) {
+        return new Pair(x, y);
+    }
 }

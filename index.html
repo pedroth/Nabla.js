@@ -90,6 +90,14 @@
      *                                                                                      */
     //========================================================================================
 
+    function delCell(cell) {
+        const { getCellState, setCellState } = cell;
+        const { id, input } = getCellState();
+        AppState.cellsContainer.element.removeChild(document.getElementById(id));
+        AppState.cells = AppState.cells.filter(p => p.id !== id)
+        console.log(`${AppState.cellsContainer}`);
+    }
+
     function evalCell(cell) {
         const { getCellState, setCellState } = cell;
         const { id, input } = getCellState()
@@ -153,6 +161,15 @@
         return outputDOM;
     }
 
+    function delBtn(cell) {
+        return DOM.of("button")
+            .attr("title", "delete cell (shift+enter)")
+            .addClass("iconBtn")
+            .style(`margin-left: auto; color:var(--secondary-color)`)
+            .inner(svg(`${SOURCE}/assets/garbage.svg`))
+            .event("click", () => delCell(cell));
+    }
+
     function runBtn(cell) {
         const { getCellState, setCellState } = cell;
         return DOM.of("button")
@@ -164,13 +181,21 @@
     }
 
     function renderCell(cell) {
-        return DOM.of("div")
+        const ans = DOM.of("div")
+            .attr("id", cell.id)
             .addClass("flex column grow")
             .appendChild(
                 cellOutput(cell),
                 cellInput(cell),
-                runBtn(cell)
+                DOM.of("div")
+                    .style("margin-left: auto")
+                    .appendChild(
+                        delBtn(cell),
+                        runBtn(cell)
+                    )
             );
+        
+        return ans;
     }
 
     function renderCells() {
@@ -181,7 +206,7 @@
     function addCellBtn(cellsContainer) {
         const addCellAction = () => {
             const { cells } = AppState;
-            const newCell = cell(cells.length);
+            const newCell = cell(crypto.randomUUID());
             cells.push(newCell);
             cellsContainer.appendChild(renderCell(newCell));
         }
@@ -203,6 +228,7 @@
         const cellsContainer = DOM.of("div")
             .addClass("flex spaced-items column")
             .appendChild(...renderCells());
+        AppState.cellsContainer = cellsContainer;
         return container
             .appendChild(
                 cellsContainer,
@@ -275,12 +301,12 @@
 
     function getInitialCells() {
         const cells = (NablaStorage.getItem("AppState") ?? []).map(x => deserializeCell(x));
-        const defaultCell = cell(0);
+        const defaultCell = cell(crypto.randomUUID());
         defaultCell.setCellState(() => ({ input: `maybe("Type some nabla.js code").orElse();` }))
         return cells.length === 0 ? [defaultCell] : cells;
     }
 
-    const AppState = { cells: getInitialCells() }
+    const AppState = { cells: getInitialCells(), cellsContainer: undefined }
     renderUI();
 </script>
 

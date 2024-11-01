@@ -1,4 +1,4 @@
-import { Tuple } from "../Tuple";
+import { Tuple } from "../Tuple/index.js";
 
 /**
  * L<x> -> [] | [x, L<x>]
@@ -23,12 +23,12 @@ export class List {
     }
 
     get(k) {
-        if(k <= 0) return this.head();
+        if (k <= 0) return this.head();
         return this.tail().get(k - 1);
     }
 
     map(f) {
-        return this.isEmpty() ? 
+        return this.isEmpty() ?
             this :
             new List(f(this.head()), this.tail().map(f));
     }
@@ -61,27 +61,27 @@ export class List {
     }
 
     prod(list) {
-        if(this.isEmpty()) return this;
-        if(list.isEmpty()) return list;
+        if (this.isEmpty()) return this;
+        if (list.isEmpty()) return list;
         return new List(list.prodLeft(this.head()), this.tail().prod(list));
     }
 
     prodLeft(x) {
-        if(this.isEmpty()) return this;
-        if(x instanceof List) {
+        if (this.isEmpty()) return this;
+        if (x instanceof List) {
             return x.prod(this);
         }
         const y = this.head();
         const t = this.tail();
-        if(y instanceof List) {
+        if (y instanceof List) {
             return new List(y.prodLeft(x), t.prodLeft(x));
         }
         return new List(
-            x instanceof Tuple ? 
-            x.push(y) :
-            y instanceof Tuple ?
-            new Tuple(x, y) :
-            Tuple.of(x, y), 
+            x instanceof Tuple ?
+                x.push(y) :
+                y instanceof Tuple ?
+                    new Tuple(x, y) :
+                    Tuple.of(x, y),
             t.prodLeft(x)
         );
     }
