@@ -302,7 +302,7 @@
     function getInitialCells() {
         const cells = (NablaStorage.getItem("AppState") ?? []).map(x => deserializeCell(x));
         const defaultCell = cell(crypto.randomUUID());
-        defaultCell.setCellState(() => ({ input: `maybe("Type some nabla.js code").orElse();` }))
+        defaultCell.setCellState(() => ({ input: `Maybe.of("Type some nabla.js code").orElse();` }))
         return cells.length === 0 ? [defaultCell] : cells;
     }
 

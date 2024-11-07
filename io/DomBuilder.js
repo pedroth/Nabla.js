@@ -1,4 +1,4 @@
-import { maybe } from "../src/Monads/index.js";
+import { Maybe } from "../src/Monads/index.js";
 
 const SVG_URL = "http://www.w3.org/2000/svg";
 const SVG_TAGS = [
@@ -112,7 +112,7 @@ class DomBuilder {
 
     static ofId(id) {
         const domWithId = document.getElementById(id)
-        return maybe(domWithId).map(x => new DomBuilder(x));
+        return Maybe.of(domWithId).map(x => new DomBuilder(x));
     }
 }
 
