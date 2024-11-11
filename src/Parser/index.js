@@ -10,7 +10,6 @@ class Parser {
         otherRules.forEach((aRule) => {
             this.symbol2rule[aRule.symbol.id] = aRule.rule;
         })
-        console.log(">>>", this.symbol2rule)
     }
 
     parse(inputTree) {
@@ -76,9 +75,10 @@ function dot(left, right) {
             const inType = inputTree.type;
             if (inType !== "dot") return Fail.of("Not a dot input");
             const leftMaybe = left.parse(inputTree.left, parser);
+            if (!leftMaybe.isSuccess()) return Fail.of("Fail to parse left");
             const rightMaybe = right.parse(inputTree.right, parser);
-            if (leftMaybe.isSuccess() && rightMaybe.isSuccess()) return leftMaybe.flatMap(l => rightMaybe.map(r => dot(l, r)));
-            return Fail.of("Fail to match dot");
+            if (!rightMaybe.isSuccess()) return Fail.of("Fail to parse right");
+            return leftMaybe.flatMap(l => rightMaybe.map(r => dot(l, r)));
         }
     };
 }
@@ -90,8 +90,8 @@ function symbol(s, value) {
         value,
         parse: (inputTree, parser) => {
             return parser.symbol2rule[s]
-            .parse(inputTree, parser)
-            .map(x => symbol(s, x))
+                .parse(inputTree, parser)
+                .map(x => symbol(s, x))
         }
     };
 }
@@ -109,34 +109,91 @@ function token(s) {
     };
 }
 
+function tokenize(s) {
+    if (!s || s.length === 0) return;
+    if (s.length === 1) return token(s[0]);
+    const [head, ...tail] = s;
+    return dot(token(head), tokenize(tail));
+}
+
+function stringify(tree) {
+    if (tree.type === "token") return tree.id;
+    if (tree.type === "dot") return `${stringify(tree.left)}${stringify(tree.right)}`;
+    if (tree.type === "or") return `${stringify(tree.left)}|${stringify(tree.right)}`;
+    if (tree.type === "symbol") return `${stringify(tree.value)}`;
+}
+
+// const parser = Parser
+//     .builder()
+//     .addRule(
+//         rule(
+//             symbol("S"),
+//             or(
+//                 dot(
+//                     symbol("S"),
+//                     token("a")
+//                 ),
+//                 token("b")
+//             )
+//         )
+//     )
+//     .build();
+
+// console.log("AST: ",
+//     parser.parse(
+//         // dot(
+//         //     token("b"),
+//         //     dot(
+//         //         token("a"),
+//         //         token("a")
+//         //     )
+//         // )
+//         dot(
+//             dot(dot(token("b"), token("a")), token("a")),
+//             token("a")
+//         )
+//     )
+// );
 const parser = Parser
     .builder()
     .addRule(
         rule(
             symbol("S"),
             or(
-                dot(
-                    symbol("S"),
-                    token("a")
-                ),
-                token("b")
+                dot(token("("), dot(symbol("S"), token(")"))),
+                or(
+                    dot(symbol("S"), symbol("S")),
+                    token("1")
+                )
             )
         )
     )
     .build();
 
-console.log("AST: ",
-    parser.parse(
-        // dot(
-        //     token("b"),
-        //     dot(
-        //         token("a"),
-        //         token("a")
-        //     )
-        // )
+const expected = dot(
+    token("("),
+    dot(
         dot(
-            dot(token("b"), token("a")),
-            token("a")
-        )
+            dot(
+                token("("),
+                dot(
+                    token("1"),
+                    token(")")
+                )
+            )
+            ,
+            dot(
+                token("("),
+                dot(
+                    token("1"),
+                    token(")")
+                )
+            )
+        ),
+        token(")")
     )
+);
+const actual = tokenize("((1)(1))");
+console.log("AST: \n",
+    stringify(parser.parse(expected))
 );
