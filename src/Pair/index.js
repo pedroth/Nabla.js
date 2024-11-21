@@ -18,8 +18,8 @@ export class Pair {
 
     equals(pair) {
         if (!(pair instanceof Pair)) return false;
-        return this.x === pair.left() || this.x?.equals && this.x.equals()
-            && this.y === pair.right();
+        const equalsOrSame = (a, b) => a === b || (typeof a?.equals === 'function' && a.equals(b));
+        return equalsOrSame(this.x, pair.left()) && equalsOrSame(this.y, pair.right());
     }
 
     map(f) {
@@ -36,6 +36,10 @@ export class Pair {
 
     toArray() {
         return [this.x, this.y];
+    }
+
+    toString() {
+        return `[${this.x}, ${this.y}]`;
     }
 
     static of(x, y) {
