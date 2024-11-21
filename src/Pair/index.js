@@ -4,6 +4,24 @@ export class Pair {
         this.y = y;
     }
 
+    left() {
+        return this.x;
+    }
+
+    right() {
+        return this.y;
+    }
+
+    isEmpty() {
+        return this.x == null && this.y == null;
+    }
+
+    equals(pair) {
+        if (!(pair instanceof Pair)) return false;
+        return this.x === pair.left() || this.x?.equals && this.x.equals()
+            && this.y === pair.right();
+    }
+
     map(f) {
         return new Pair(f(this.x), f(this.y));
     }
@@ -16,20 +34,8 @@ export class Pair {
         return predicate(this.x) && predicate(this.y) ? new Pair(this.x, this.y) : new Pair();
     }
 
-    left() {
-        return this.x;
-    }
-
-    right() {
-        return this.y;
-    }
-
-    equals(pair) {
-        return this.x === pair.left() && this.y === pair.right();
-    }
-
-    isEmpty() {
-        return !this.x && !this.y;
+    toArray() {
+        return [this.x, this.y];
     }
 
     static of(x, y) {

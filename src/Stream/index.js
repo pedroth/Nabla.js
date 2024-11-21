@@ -5,7 +5,7 @@ export class Stream {
      * @param {() => Stream} tail 
      */
     constructor(head, tail) {
-        this.isEmpty = !head && !tail;
+        this.isEmpty = head == null && tail == null;
         this.head = head;
         this.tail = tail;
     }

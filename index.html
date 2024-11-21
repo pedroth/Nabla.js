@@ -154,7 +154,7 @@
     function cellOutput(cell) {
         const { onCellStateChange, getCellState } = cell;
         const { output } = getCellState(); // initial state
-        const outputDOM = DOM.of("pre").inner(output);
+        const outputDOM = DOM.of("pre").style("overflow-x: auto").inner(output);
         onCellStateChange(({ output }) => {
             outputDOM.inner(output);
         })

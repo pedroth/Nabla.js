@@ -31,12 +31,7 @@ export class Some {
     }
 }
 
-const noneInstance = undefined;
 export class None {
-    constructor() {
-        if (noneInstance) return noneInstance;
-    }
-
     map() {
         return this;
     }
@@ -71,7 +66,6 @@ export class Maybe {
         return new None()
     }
 }
-
 
 export class Fail {
     constructor(a) {

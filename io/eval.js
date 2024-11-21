@@ -12,6 +12,10 @@ export function codeEval(code) {
     } catch (e) {
         evaluation = e.message;
     }
-    evaluation = !evaluation ? "undefined" : evaluation;
+    evaluation = evaluation == null ?
+        "undefined" :
+        evaluation?.toString == null ?
+            evaluation :
+            evaluation.toString()
     return JSON.stringify(evaluation, null, 2);
 }

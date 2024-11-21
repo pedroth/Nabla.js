@@ -10,7 +10,7 @@ export class List {
     }
 
     isEmpty() {
-        return !this._head && !this._tail;
+        return this._head == null && this._tail == null;
     }
 
     head() {
@@ -20,6 +20,14 @@ export class List {
     tail() {
         if (this.isEmpty()) return this;
         return this._tail;
+    }
+
+    size() {
+        return this.length();
+    }
+
+    length() {
+        return this.isEmpty() ? 0 : 1 + this.tail().length();
     }
 
     get(k) {
@@ -107,10 +115,6 @@ export class List {
             return ans;
         }
         return this.tail().pop();
-    }
-
-    length() {
-        return this.isEmpty() ? 0 : 1 + this.tail().length();
     }
 
     toArray() {
