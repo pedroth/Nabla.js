@@ -40,3 +40,18 @@ test('Tuple filter', () => {
         .toBe(true);
 });
 
+test('Tuple zip', () => {
+    expect(
+        Tuple.of("a", "b", "c")
+            .zip(Tuple.of(1, 2, 3))
+            .map(x => x.left() + x.right())
+            .toArray()
+    ).toEqual(["a1", "b2", "c3"])
+});
+
+test("Tuple union", () => {
+    expect(
+        Tuple.of(false, true).union(Tuple.of(1, 2, 3)).toArray()
+    ).toEqual([false, true, 1, 2, 3])
+})
+

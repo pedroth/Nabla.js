@@ -47,6 +47,33 @@ test("intersection", () => {
     expect(intersection.isEmpty()).toBe(true);
 });
 
+test("map", () => {
+    expect(
+        Set
+            .range(0, 10)
+            .map(x => x * x)
+            .toArray()
+    ).toEqual(
+        [...Array(10)]
+            .map((x, i) => i)
+            .map(x => x * x)
+    )
+})
+
+test("filter", () => {
+    expect(
+        Set
+            .range(0, 10)
+            .filter(x => x % 2 === 0)
+            .toArray()
+    )
+        .toEqual(
+            [...Array(10)]
+                .map((x, i) => i)
+                .filter(x => x % 2 === 0)
+        )
+})
+
 test("cartesian product", () => {
     const expectedBinary = Set.of(Tuple.of(0, 0), Tuple.of(0, 1), Tuple.of(1, 0), Tuple.of(1, 1));
     const expectedTernary = Set.of(
@@ -59,7 +86,7 @@ test("cartesian product", () => {
         Tuple.of(1, 1, 0),
         Tuple.of(1, 1, 1),
     )
-    const s = Set.of(0,1);
+    const s = Set.of(0, 1);
     expect(s.prod(s).equals(expectedBinary)).toBe(true);
     expect(s.prod(s).prod(s).equals(expectedTernary)).toBe(true);
 })

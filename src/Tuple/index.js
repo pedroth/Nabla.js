@@ -1,3 +1,5 @@
+import { Pair } from "../Pair/index.js";
+
 export class Tuple {
     constructor(head, tail) {
         this.head = head;
@@ -26,6 +28,18 @@ export class Tuple {
         return new Tuple(this.head, this.tail.add(x));
     }
 
+    union(tuple) {
+        if (this.isEmpty()) return tuple;
+        let ans = this;
+        tuple.forEach(x => ans = ans.add(x));
+        return ans;
+    }
+
+    forEach(lambda) {
+        this.map(lambda);
+        return this;
+    }
+
     map(lambda) {
         if (this.isEmpty()) return this;
         return new Tuple(lambda(this.head), this.tail.map(lambda));
@@ -44,8 +58,8 @@ export class Tuple {
     }
 
     zip(tuple) {
-        if(this.isEmpty()) return this;
-
+        if (this.isEmpty()) return this;
+        return new Tuple(Pair.of(this.head, tuple.head), this.tail.zip(tuple.tail))
     }
 
     toArray() {
@@ -54,7 +68,7 @@ export class Tuple {
     }
 
     toString() {
-        return `[${this.toArray()}]`;
+        return `(${this.toArray()})`;
     }
 
     static of(...array) {

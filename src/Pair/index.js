@@ -39,7 +39,7 @@ export class Pair {
     }
 
     toString() {
-        return `[${this.x}, ${this.y}]`;
+        return `(${this.x}, ${this.y})`;
     }
 
     static of(x, y) {

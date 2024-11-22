@@ -1,3 +1,5 @@
+import { Tuple } from "../Tuple/index.js";
+
 export class Set {
     constructor(equalityFunction = (x, y) => x === y || (x?.equals && x.equals(y))) {
         this.equality = equalityFunction;
@@ -10,21 +12,13 @@ export class Set {
     }
 
     add(x) {
-        if (this.head == undefined) {
+        if (this.head == null) {
             this.head = x;
             this.tail = new Set(this.equality);
             return this;
         }
         if (this.equality(this.head, x)) return this;
         this.tail = this.tail.add(x);
-        return this;
-    }
-
-    del(x) {
-        if (this.equality(this.head, x)) {
-            return this.tail;
-        }
-        this.tail = this.tail.del(x);
         return this;
     }
 
@@ -38,7 +32,19 @@ export class Set {
     }
 
     prod(set) {
-        
+        if (this.isEmpty()) return this;
+        if (set.isEmpty()) return set;
+        return this.map(x => {
+            return set.map(y => {
+                if (x instanceof Tuple && y instanceof Tuple) {
+                    return x.join(y)
+                }
+                if (x instanceof Tuple && !(y instanceof Tuple)) {
+                    return x.add(y)
+                }
+                return Tuple.of(x, y)
+            })
+        }).flatMap(x => x);
     }
 
     filter(predicate) {
@@ -52,6 +58,11 @@ export class Set {
     map(lambda) {
         if (this.isEmpty()) return this;
         return new Set(this.equality).add(lambda(this.head)).union(this.tail.map(lambda));
+    }
+
+    flatMap(lambda) {
+        if (this.isEmpty()) return this;
+        return lambda(this.head).union(this.tail.flatMap(lambda));
     }
 
     fold(init, folder) {
@@ -114,11 +125,3 @@ export class Set {
     }
 
 }
-
-// const setA = Set.of(1, 2);
-// const setB = Set.of(3, 2, 2, 1, 1, 1, 5);
-// console.log(setA.union(setB).toArray());
-
-console.log(
-    Set.range(0, 2).toString()
-);
