@@ -30,8 +30,8 @@ export class Pair {
         return f(f(acc, this.x), this.y);
     }
 
-    filter(predicate) {
-        return predicate(this.x) && predicate(this.y) ? new Pair(this.x, this.y) : new Pair();
+    zip(pair){
+        return Pair.of(Pair.of(this.x, pair.x), Pair.of(this.y, pair.y));
     }
 
     toArray() {

@@ -3,7 +3,7 @@ import { Pair } from './index.js';
 
 test('Pair creation', () => {
   const pair = new Pair(2, 3);
-  expect(pair.toArray()).toEqual([2,3]);
+  expect(pair.toArray()).toEqual([2, 3]);
   expect(pair.left()).toBe(2);
   expect(pair.right()).toBe(3);
 });
@@ -20,11 +20,15 @@ test('Pair fold', () => {
   expect(result).toBe(5);
 });
 
-test('Pair filter', () => {
+test('Pair zip', () => {
   const pair1 = new Pair(2, 4);
   const pair2 = new Pair(1, 3);
-  expect(pair1.filter(x => x % 2 === 0).equals(pair1)).toBe(true);
-  expect(pair2.filter(x => x % 2 === 0).isEmpty()).toBe(true);
+  expect(
+    pair1
+      .zip(pair2)
+      .map(x => x.left() + x.right())
+      .equals(Pair.of(3, 7)))
+    .toBe(true)
 });
 
 test('isEmpty', () => {
