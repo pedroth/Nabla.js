@@ -5,139 +5,122 @@ import { Tuple } from "../Tuple/index.js";
  */
 export class List {
     constructor(head, tail) {
-        this._head = head;
-        this._tail = tail;
+        this.head = head;
+        this.tail = tail;
     }
 
     isEmpty() {
-        return this._head == null && this._tail == null;
-    }
-
-    head() {
-        return this._head;
-    }
-
-    tail() {
-        if (this.isEmpty()) return this;
-        return this._tail;
+        return this.head == null && this.tail == null;
     }
 
     size() {
-        return this.length();
-    }
-
-    length() {
-        return this.isEmpty() ? 0 : 1 + this.tail().length();
+        return this.isEmpty() ? 0 : 1 + this.tail.size()
     }
 
     get(k) {
-        if (k <= 0) return this.head();
-        return this.tail().get(k - 1);
+        if (this.isEmpty()) return;
+        if (k <= 0) return this.head;
+        return this.tail.get(k - 1);
     }
 
-    map(f) {
-        return this.isEmpty() ?
-            this :
-            new List(f(this.head()), this.tail().map(f));
-    }
-
-    flatMap(f = x => x) {
-        if (this.isEmpty()) return this;
-        const flatted = f(this.head());
-        if (flatted.isEmpty()) return this.tail().flatMap(f);
-        return new List(flatted.head(), flatted.tail().concat(this.tail().flatMap(f)));
-    }
-
-    fold(initial, f) {
-        return this.isEmpty() ?
-            initial :
-            f(initial, this.tail().fold(initial, f));
-    }
-
-    filter(predicate) {
-        return this.isEmpty() ?
-            this :
-            predicate(this.head()) ?
-                new List(this.head(), this.tail().filter(predicate)) :
-                this.tail().filter(predicate);
-    }
-
-    concat(list) {
-        return this.isEmpty() ?
-            list :
-            new List(this.head(), this.tail().concat(list));
-    }
-
-    prod(list) {
-        if (this.isEmpty()) return this;
-        if (list.isEmpty()) return list;
-        return new List(list.prodLeft(this.head()), this.tail().prod(list));
-    }
-
-    prodLeft(x) {
-        if (this.isEmpty()) return this;
-        if (x instanceof List) {
-            return x.prod(this);
-        }
-        const y = this.head();
-        const t = this.tail();
-        if (y instanceof List) {
-            return new List(y.prodLeft(x), t.prodLeft(x));
-        }
-        return new List(
-            x instanceof Tuple ?
-                x.push(y) :
-                y instanceof Tuple ?
-                    new Tuple(x, y) :
-                    Tuple.of(x, y),
-            t.prodLeft(x)
-        );
-    }
-
-    push(x) {
+    add(x) {
         // !! Mutation !!
         if (this.isEmpty()) {
-            this._head = x;
-            this._tail = new List();
+            this.head = x;
+            this.tail = new List();
             return this;
         }
-        this.tail().push(x);
+        this.tail.add(x);
         return this;
     }
 
     pop() {
         // !! Mutation !!
         if (this.isEmpty()) return;
-        if (this.tail().isEmpty()) {
-            const ans = this.head();
-            this._head = undefined;
-            this._tail = undefined;
+        if (this.tail.isEmpty()) {
+            const ans = this.head;
+            this.head = undefined;
+            this.tail = undefined;
             return ans;
         }
-        return this.tail().pop();
+        return this.tail.pop();
+    }
+
+    map(f) {
+        if (this.isEmpty()) return this;
+        return new List(f(this.head), this.tail.map(f))
+    }
+
+    flatMap(f = x => x) {
+        if (this.isEmpty()) return this;
+        return f(this.head).union(this.tail.flatMap(f));
+    }
+
+    fold(initial, f) {
+        if (this.isEmpty()) return initial;
+        return this.tail.fold(f(initial, this.head), f)
+    }
+
+    filter(predicate) {
+        if (this.isEmpty()) return this;
+        return predicate(this.head) ?
+            new List(this.head, this.tail.filter(predicate)) :
+            this.tail.filter(predicate);
+    }
+
+    union(list) {
+        return this.isEmpty() ?
+            list :
+            new List(this.head, this.tail.union(list));
+    }
+
+    prod(list) {
+        if(this.isEmpty()) return this;
+        if(list.isEmpty()) return list;
+        return this.map(x => {
+            return list.map(y => {
+                if (x instanceof Tuple && y instanceof Tuple) {
+                    return x.join(y)
+                }
+                if (x instanceof Tuple && !(y instanceof Tuple)) {
+                    return x.add(y)
+                }
+                return Tuple.of(x, y)
+            })
+        }).flatMap()
     }
 
     toArray() {
-        return this.tail().isEmpty() ? [this.head()] : [this.head(), ...this.tail().toArray()];
+        if (this.isEmpty()) return []
+        return this.tail.isEmpty() ? [this.head] : [this.head, ...this.tail.toArray()];
     }
 
     equals(list) {
         if (this.isEmpty() && list.isEmpty()) return true;
-        return this.head() === list.head() && this.tail().equals(list.tail());
+        return (this.head === list.head || this.head.equals(list.head)) && this.tail.equals(list.tail);
+    }
+
+    toString() {
+        return `[${this.toArray()}]`
     }
 
     static of(...arr) {
         let ans = new List();
-        arr.forEach(x => ans = ans.push(x));
+        arr.forEach(x => ans = ans.add(x));
         return ans;
     }
 
     static fromArray(arr) {
         const ans = new List();
         for (let i = 0; i < arr.length; i++) {
-            ans.push(arr[arr.length - 1 - i]);
+            ans.add(arr[i]);
         }
         return ans;
+    }
+
+    static range(init = 0, end = 0) {
+        if (init + 1 > end) return new List();
+        return new List().add(init).union(List.range(init + 1, end));
     }
 }
 

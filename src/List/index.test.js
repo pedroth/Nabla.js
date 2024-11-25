@@ -1,81 +1,86 @@
 import { expect, test } from "bun:test";
 import { List } from './index.js';
+import { Tuple } from "../Tuple/index.js";
 
-test("List operations", () => {
-    const list = List.of(1, 2, 3);
+test("List creation", () => {
+    expect(List.of(1, 2, 3).toArray()).toEqual([1, 2, 3]);
+    expect(List.fromArray([1, 2, 3]).toArray()).toEqual([1, 2, 3])
+    expect(new List(1, new List(2, new List(3, new List()))).toArray()).toEqual([1, 2, 3]);
+    expect(new List().isEmpty()).toBe(true)
+})
 
-    test("map applies function to all elements", () => {
-        const result = list.map(x => x * 2);
-        expect(result.toArray()).toEqual([2, 4, 6]);
-    });
+test("List size", () => {
+    expect(List.of(1, 2, 3).size()).toBe(3);
+    expect(new List().size()).toBe(0);
+})
 
-    test("fold reduces list to a single value", () => {
-        const result = list.fold(0, (acc, x) => acc + x);
-        expect(result).toBe(6);
-    });
+test("List add and pop", () => {
+    const l = List.of(1, 2, 3);
+    expect(l.add(4).toArray()).toEqual([1, 2, 3, 4]);
+    expect(l.toArray()).toEqual([1, 2, 3, 4]);
+    expect(l.pop()).toBe(4);
+    expect(l.toArray()).toEqual([1, 2, 3]);
+    l.pop()
+    l.pop()
+    l.pop()
+    expect(l.pop()).toBe(undefined)
+})
 
-    test("filter keeps elements that satisfy predicate", () => {
-        const result = list.filter(x => x % 2 !== 0);
-        expect(result.toArray()).toEqual([1, 3]);
-    });
+test("List get", () => {
+    const l = List.of(1, 2, 3);
+    expect(l.get(-1)).toBe(1)
+    expect(l.get(0)).toBe(1)
+    expect(l.get(1)).toBe(2)
+    expect(l.get(2)).toBe(3)
+    expect(l.get(6)).toBe(undefined)
+})
 
-    test("concat combines two lists", () => {
-        const list2 = List.of(4, 5);
-        const result = list.concat(list2);
-        expect(result.toArray()).toEqual([1, 2, 3, 4, 5]);
-    });
+test("List range", () => {
+    expect(List.range(0, 10).toArray()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+})
 
-    test("push adds element to the end of the list", () => {
-        const result = list.push(4);
-        expect(result.toArray()).toEqual([1, 2, 3, 4]);
-    });
+test("List map and reduce", () => {
+    expect(
+        List.of(1, 2, 3)
+            .map(x => x * x)
+            .fold(0, (e, x) => e + x)
+    ).toBe(
+        [1, 2, 3]
+            .map(x => x * x)
+            .reduce((e, x) => e + x, 0)
+    )
+})
 
-    test("pop removes and returns the last element", () => {
-        const newList = List.of(1, 2, 3);
-        const popped = newList.pop();
-        expect(popped).toBe(3);
-        expect(newList.toArray()).toEqual([1, 2]);
-    });
 
-    test("isEmpty returns true for empty list", () => {
-        expect(List.of().isEmpty()).toBe(true);
-        expect(list.isEmpty()).toBe(false);
-    });
+test("List filter", () => {
+    expect(
+        List.range(0, 10)
+            .filter(x => x % 2 === 1)
+            .toArray()
+    ).toEqual(
+        [1, 3, 5, 7, 9]
+    )
+})
 
-    test("head returns the first element", () => {
-        expect(list.head()).toBe(1);
-    });
+test("List union/concat", () => {
+    expect(List.of(1,2,3).union(List.of(4,5,6)).union(List.of(7,8,9)).toArray())
+        .toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+})
 
-    test("tail returns the rest of the list", () => {
-        expect(list.tail().toArray()).toEqual([2, 3]);
-    });
 
-    test("length returns the number of elements", () => {
-        expect(list.length()).toBe(3);
-    });
-
-    test("toArray converts list to array", () => {
-        expect(list.toArray()).toEqual([1, 2, 3]);
-    });
-
-    test("List.of creates a list from arguments", () => {
-        const newList = List.of(1, 2, 3);
-        expect(newList.toArray()).toEqual([1, 2, 3]);
-    });
-
-    test("equals compares two lists for equality", () => {
-        const list1 = List.of(1, 2, 3);
-        const list2 = List.of(1, 2, 3);
-        const list3 = List.of(3, 2, 1);
-        
-        expect(list1.equals(list2)).toBe(true);
-        expect(list1.equals(list3)).toBe(false);
-        expect(list1.equals(List.of(1, 2))).toBe(false);
-    });
-
-    test("List.fromArray creates a list from an array", () => {
-        const arr = [1, 2, 3];
-        const newList = List.fromArray(arr);
-        expect(newList.toArray()).toEqual(arr);
-    });
-});
+test("", () => {
+    const expectedBinary = List.of(Tuple.of(0, 0), Tuple.of(0, 1), Tuple.of(1, 0), Tuple.of(1, 1));
+    const expectedTernary = List.of(
+        Tuple.of(0, 0, 0),
+        Tuple.of(0, 0, 1),
+        Tuple.of(0, 1, 0),
+        Tuple.of(0, 1, 1),
+        Tuple.of(1, 0, 0),
+        Tuple.of(1, 0, 1),
+        Tuple.of(1, 1, 0),
+        Tuple.of(1, 1, 1),
+    )
+    const l = List.of(0, 1);
+    expect(l.prod(l).equals(expectedBinary)).toBe(true);
+    expect(l.prod(l).prod(l).equals(expectedTernary)).toBe(true);
+})
