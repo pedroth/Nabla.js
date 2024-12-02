@@ -165,7 +165,7 @@
         return DOM.of("button")
             .attr("title", "delete cell")
             .addClass("iconBtn")
-            .style(`margin-left: auto; color:var(--secondary-color)`)
+            .style(`color:var(--secondary-color)`)
             .inner(svg(`${SOURCE}/assets/garbage.svg`))
             .event("click", () => delCell(cell));
     }
@@ -188,13 +188,13 @@
                 cellOutput(cell),
                 cellInput(cell),
                 DOM.of("div")
-                    .style("margin-left: auto")
+                    .style("display: flex")
                     .appendChild(
                         delBtn(cell),
                         runBtn(cell)
                     )
             );
-        
+
         return ans;
     }
 
@@ -232,7 +232,11 @@
         return container
             .appendChild(
                 cellsContainer,
-                addCellBtn(cellsContainer)
+                DOM.of("div")
+                    .style("padding-top: 1rem")
+                    .appendChild(
+                        addCellBtn(cellsContainer)
+                    )
             )
     }
 

@@ -1,10 +1,10 @@
 import { Tuple } from "../Tuple/index.js";
 
 export class Set {
-    constructor(equalityFunction = (x, y) => x === y || (x?.equals && x.equals(y))) {
-        this.equality = equalityFunction;
-        this.head;
-        this.tail;
+    constructor(head, tail) {
+        this.equality = (x, y) => x === y || (x?.equals && x.equals(y));
+        this.head = head;
+        this.tail = tail;
     }
 
     isEmpty() {
@@ -12,14 +12,9 @@ export class Set {
     }
 
     add(x) {
-        if (this.head == null) {
-            this.head = x;
-            this.tail = new Set(this.equality);
-            return this;
-        }
+        if (this.isEmpty()) return new Set(x, new Set())
         if (this.equality(this.head, x)) return this;
-        this.tail = this.tail.add(x);
-        return this;
+        return new Set(this.head, this.tail.add(x), this.equality);
     }
 
     union(set) {
@@ -49,18 +44,16 @@ export class Set {
 
     filter(predicate) {
         if (this.isEmpty()) return this;
-        if (predicate(this.head)) return new Set(this.equality)
-            .add(this.head)
-            .union(this.tail.filter(predicate));
+        if (predicate(this.head)) return new Set(this.head, this.tail.filter(predicate))
         return this.tail.filter(predicate);
     }
 
     map(lambda) {
         if (this.isEmpty()) return this;
-        return new Set(this.equality).add(lambda(this.head)).union(this.tail.map(lambda));
+        return new Set(lambda(this.head), this.tail.map(lambda));
     }
 
-    flatMap(lambda) {
+    flatMap(lambda = x => x) {
         if (this.isEmpty()) return this;
         return lambda(this.head).union(this.tail.flatMap(lambda));
     }
@@ -104,7 +97,7 @@ export class Set {
     }
 
     static fromArray(array) {
-        const ans = new Set();
+        const ans = Set.EMPTY;
         for (let i = 0; i < array.length; i++) {
             ans.add(array[i]);
         }
@@ -112,16 +105,34 @@ export class Set {
     }
 
     static of(...args) {
-        const ans = new Set();
+        let ans = Set.EMPTY;
         for (let i = 0; i < args.length; i++) {
-            ans.add(args[i]);
+            ans = ans.add(args[i]);
         }
         return ans;
     }
 
     static range(init = 0, end = 0) {
-        if (init + 1 > end) return new Set();
-        return (new Set().add(init)).union(Set.range(init + 1, end));
+        if (init + 1 > end) return Set.EMPTY;
+        return (Set.EMPTY.add(init)).union(Set.range(init + 1, end));
     }
+
+    static powerSet(set) {
+        function powerSetAux(set, acc = Set.EMPTY) {
+            if (set.isEmpty()) return acc;
+            return Set.of(
+                powerSetAux(set.tail, Set.of(set.head).union(acc)),
+                powerSetAux(set.tail, acc)
+            )
+        }
+        const n = set.size();
+        let acc = powerSetAux(set);
+        for (let index = 0; index < n - 1; index++) {
+            acc = acc.flatMap();
+        }
+        return acc;
+    }
+
+    static EMPTY = new Set()
 
 }

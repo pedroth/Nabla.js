@@ -92,6 +92,22 @@ test("cartesian product", () => {
 })
 
 test("is subset", () => {
+    expect(Set.of().isSubSet(Set.of("a", "b", "c"))).toBe(true);
     expect(Set.of("a", "b").isSubSet(Set.of("a", "b", "c"))).toBe(true);
     expect(Set.of("a", "d").isSubSet(Set.of("a", "b", "c"))).toBe(false);
 });
+
+
+test("power set", () => {
+    const expectedSet = Set.of(
+        new Set(),
+        Set.of("a"),
+        Set.of("b"),
+        Set.of("c"),
+        Set.of("a", "b"),
+        Set.of("a", "c"),
+        Set.of("b", "c"),
+        Set.of("a", "b", "c")
+    );
+    expect(Set.powerSet(Set.of("a", "b", "c")).equals(expectedSet)).toBe(true)
+})
